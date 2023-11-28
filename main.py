@@ -3,6 +3,8 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 import customtkinter
 from io import BytesIO
+import numpy as np
+import cv2
 
 width, height = 400, 400
 
@@ -24,6 +26,25 @@ def np_im_to_data(im):
 
 def on_contrast_slider_move(value):
     print("Test")
+
+
+def load_image(max_size=(400,400)):
+    file_path = filedialog.askopenfilename(title="Pick an Image", filetypes=[("Image files", "*.jpg;*.jpeg;*.png")])
+    if file_path:
+        image = cv2.imread(file_path)
+        if image is not None:
+            img_height, img_width = image.shape[:2]
+            max_height, max_width = max_size
+            if img_height > max_height or img_width > max_width:
+                scale = min(max_height / img_height, max_width / img_width)
+                new_height = int(img_height * scale)
+                new_width = int(img_width * scale)
+                image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
+
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            original_image = ImageTk.PhotoImage(image=Image.fromarray(image)) 
+            image_panel.create_image(0, 0, anchor="nw", image=original_image)
+
 
 
 #Creates the Film Effects Window
@@ -142,7 +163,7 @@ image_panel.pack(pady=30, padx=10)
 
 # Second Frame Buttons
 save_button = customtkinter.CTkButton(frame_2, text="Save Image")
-load_button = customtkinter.CTkButton(frame_2, text="Load Image")
+load_button = customtkinter.CTkButton(frame_2, text="Load Image", command=load_image)
 quit_button = customtkinter.CTkButton(frame_2, text="Quit", command=root.quit)
 reset_button = customtkinter.CTkButton(frame_2, text="Reset Image")
 
