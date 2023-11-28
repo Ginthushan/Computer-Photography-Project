@@ -1,12 +1,16 @@
 import tkinter as tk
 from tkinter import filedialog
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageEnhance
 import customtkinter
 from io import BytesIO
 import numpy as np
 import cv2
+from numpy import asarray
 
 width, height = 400, 400
+
+global original_image_data
+global modified_image_data
 
 # Setting Custom Appearance for the application
 customtkinter.set_appearance_mode("dark")
@@ -24,11 +28,19 @@ def np_im_to_data(im):
         data = output.getvalue()
     return data
 
+
 def on_contrast_slider_move(value):
-    print("Test")
+
+    image_data = original_image_data
+
+    image_data = cv2.addWeighted(image_data, 1 + value / 100, np.zeros_like(image_data), 0, 0)
+    res = ImageTk.PhotoImage(image=Image.fromarray(image_data))
+    image_panel.image = res
+    image_panel.create_image(0, 0, anchor="nw", image=res)
 
 
 def load_image(max_size=(400,400)):
+    global original_image_data
     file_path = filedialog.askopenfilename(title="Pick an Image", filetypes=[("Image files", "*.jpg;*.jpeg;*.png")])
     if file_path:
         image = cv2.imread(file_path)
@@ -42,9 +54,11 @@ def load_image(max_size=(400,400)):
                 image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
 
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            original_image = ImageTk.PhotoImage(image=Image.fromarray(image)) 
+            original_image_data = image
+            original_image_data = asarray(original_image_data)
+            original_image = ImageTk.PhotoImage(image=Image.fromarray(image))
+            image_panel.image = original_image
             image_panel.create_image(0, 0, anchor="nw", image=original_image)
-
 
 
 #Creates the Film Effects Window
@@ -160,6 +174,7 @@ frame_3.pack(pady=10, padx=10, fill="both", expand=True)
 
 image_panel = customtkinter.CTkCanvas(master=frame_1, width=width, height=height, bg='white')
 image_panel.pack(pady=30, padx=10)
+image_panel_image = image_panel.create_image(0, 0, anchor="nw")
 
 # Second Frame Buttons
 save_button = customtkinter.CTkButton(frame_2, text="Save Image")
