@@ -113,6 +113,7 @@ def black_white():
     image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
 
 def draw_strokes(stroke_width_range=(1, 2), stroke_length_range=(1, 2)):
+    global original_image_data
 
     image_data = original_image_data
 
@@ -137,6 +138,64 @@ def draw_strokes(stroke_width_range=(1, 2), stroke_length_range=(1, 2)):
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(image_data))
     image_panel.image = np_image_data
     image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+
+def on_grayscale_slider_move(value):
+    global original_image_data
+
+    image_data = original_image_data.astype(float)
+    grayscale_factor = value / 100
+    grayscale_image = np.dot(image_data, [grayscale_factor, 1 - grayscale_factor, 1 - grayscale_factor])
+    grayscale_image = np.clip(grayscale_image, 0, 255)
+    grayscale_image = grayscale_image.astype(np.uint8)
+
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(grayscale_image))
+    image_panel.image = np_image_data
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+
+def on_noise_slider_move(value):
+    global original_image_data
+
+    image_data = original_image_data.astype(float)
+    noise_level = value * 2.55
+    noise = np.random.normal(loc=0, scale=noise_level, size=image_data.shape)
+    noisy_image = image_data + noise
+    noisy_image = np.clip(noisy_image, 0, 255)
+    noisy_image = noisy_image.astype(np.uint8)
+
+
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(noisy_image))
+    image_panel.image = np_image_data
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+
+def on_light_leak_slider_move(value):
+    global original_image_data
+
+    image_data = original_image_data.astype(float)
+    light_leak_intensity = value * 2.55
+    brightened_image = image_data + light_leak_intensity
+    brightened_image = np.clip(brightened_image, 0, 255)
+    brightened_image = brightened_image.astype(np.uint8)
+
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(brightened_image))
+    image_panel.image = np_image_data
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+
+def on_gamma_slider_move(value):
+    global original_image_data
+
+    image_data = original_image_data.astype(float)
+    gamma_value = value / 100
+    gamma_corrected_image = 255.0 * (image_data / 255.0) ** (1 / gamma_value)
+    gamma_corrected_image = np.clip(gamma_corrected_image, 0, 255)
+
+    gamma_corrected_image = gamma_corrected_image.astype(np.uint8)
+
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(gamma_corrected_image))
+    image_panel.image = np_image_data
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+
+
+
 
 #Creates the Film Effects Window
 def film_effects_ui():
@@ -187,10 +246,10 @@ def filters_ui():
     label_3 = customtkinter.CTkLabel(frame_1, text="Light Leak")
     label_4 = customtkinter.CTkLabel(frame_1, text="Gamma Correction")
 
-    grayscale = customtkinter.CTkSlider(frame_1, from_=0, to=100)
-    noise = customtkinter.CTkSlider(frame_1, from_=0, to=100)
-    light_light = customtkinter.CTkSlider(frame_1, from_=0, to=100)
-    gamma = customtkinter.CTkSlider(frame_1, from_=0, to=100)
+    grayscale = customtkinter.CTkSlider(frame_1, from_=0, to=100, command=on_grayscale_slider_move)
+    noise = customtkinter.CTkSlider(frame_1, from_=0, to=100, command=on_noise_slider_move)
+    light_light = customtkinter.CTkSlider(frame_1, from_=0, to=100, command=on_light_leak_slider_move)
+    gamma = customtkinter.CTkSlider(frame_1, from_=0, to=100, command=on_gamma_slider_move)
 
     label_1.pack()
     grayscale.pack()
