@@ -78,6 +78,65 @@ def load_image(max_size=(400,400)):
             image_panel.image = original_image
             image_panel.create_image(0, 0, anchor="nw", image=original_image)
 
+def classic_vintage():
+    global original_image_data
+
+    image_data = original_image_data.astype(float)
+
+    red_factor = 0.7
+    green_factor = 0.9
+    blue_factor = 1.1
+
+    vintage_image = image_data * [red_factor, green_factor, blue_factor]
+    vintage_image = np.clip(vintage_image, 0, 255)
+
+    vintage_image = vintage_image.astype(np.uint8)
+
+    # Update the image on the canvas
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(vintage_image))
+    image_panel.image = np_image_data
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+
+def black_white():
+    global original_image_data
+
+    image_data = original_image_data.astype(float)
+    weights = np.array([0.2989, 0.587, 0.114])
+    grayscale_image = np.dot(image_data, weights)
+    grayscale_image = np.clip(grayscale_image, 0, 255)
+
+    #original_image_data = grayscale_image.astype(np.uint8)
+    grayscale_image = grayscale_image.astype(np.uint8)
+
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(grayscale_image))
+    image_panel.image = np_image_data
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+
+def draw_strokes(stroke_width_range=(1, 2), stroke_length_range=(1, 2)):
+
+    image_data = original_image_data
+
+    height, width, _ = image_data.shape
+    sampled_pixels = np.random.choice(np.arange(height * width), size=(height * width) // 10, replace=False)
+
+    for pixel in sampled_pixels:
+        y, x = divmod(pixel, width)
+        y = np.clip(y, 0, height - 1)
+        x = np.clip(x, 0, width - 1)
+
+        stroke_width = np.random.randint(stroke_width_range[0], stroke_width_range[1] + 1)
+        stroke_length = np.random.randint(stroke_length_range[0], stroke_length_range[1] + 1)
+
+        color = tuple(map(int, image_data[y, x]))
+
+        end_x = min(x + stroke_length, width - 1)
+        end_y = min(y + stroke_width, height - 1)
+
+        cv2.line(image_data, (x, y), (end_x, end_y), color, stroke_width)
+
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(image_data))
+    image_panel.image = np_image_data
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
 
 #Creates the Film Effects Window
 def film_effects_ui():
@@ -90,9 +149,9 @@ def film_effects_ui():
     frame_2.pack(pady=10, padx=10, fill="both", expand=True)
 
     label_1 = customtkinter.CTkLabel(frame_1, text="Preset Film Effects")
-    btn_pre_1 = customtkinter.CTkButton(master=frame_1, text="Classic Vintage")
-    btn_pre_2 = customtkinter.CTkButton(master=frame_1, text="Black and White")
-    btn_pre_3 = customtkinter.CTkButton(master=frame_1, text="Painted")
+    btn_pre_1 = customtkinter.CTkButton(master=frame_1, text="Classic Vintage", command=classic_vintage)
+    btn_pre_2 = customtkinter.CTkButton(master=frame_1, text="Black and White", command=black_white)
+    btn_pre_3 = customtkinter.CTkButton(master=frame_1, text="Painted", command=draw_strokes)
 
     label_1.pack()
     btn_pre_1.pack(pady=10, padx=10, side=tk.LEFT)
