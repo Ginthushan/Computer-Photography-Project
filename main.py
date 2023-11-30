@@ -10,6 +10,7 @@ from numpy import asarray
 width, height = 400, 400
 
 global original_image_data
+global reset_image_data
 
 # Setting Custom Appearance for the application
 customtkinter.set_appearance_mode("dark")
@@ -59,6 +60,7 @@ def on_temperature_slider_move(value):
 
 def load_image(max_size=(400,400)):
     global original_image_data
+    global reset_image_data
     file_path = filedialog.askopenfilename(title="Pick an Image", filetypes=[("Image files", "*.jpg;*.jpeg;*.png")])
     if file_path:
         image = cv2.imread(file_path)
@@ -74,9 +76,21 @@ def load_image(max_size=(400,400)):
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             original_image_data = image
             original_image_data = asarray(original_image_data)
+            reset_image_data = np.copy(original_image_data)
             original_image = ImageTk.PhotoImage(image=Image.fromarray(image))
             image_panel.image = original_image
             image_panel.create_image(0, 0, anchor="nw", image=original_image)
+
+def save_image():
+    global original_image_data
+    image_data = cv2.cvtColor(original_image_data, cv2.COLOR_RGB2BGR)
+    cv2.imwrite('modified_image.jpg', image_data)
+
+def reset_image():
+    global reset_image_data
+    image_data = reset_image_data.astype(np.uint8)
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(image_data))
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
 
 def classic_vintage():
     global original_image_data
@@ -318,10 +332,10 @@ image_panel.pack(pady=30, padx=10)
 image_panel_image = image_panel.create_image(0, 0, anchor="nw")
 
 # Second Frame Buttons
-save_button = customtkinter.CTkButton(frame_2, text="Save Image")
+save_button = customtkinter.CTkButton(frame_2, text="Save Image", command= save_image)
 load_button = customtkinter.CTkButton(frame_2, text="Load Image", command=load_image)
 quit_button = customtkinter.CTkButton(frame_2, text="Quit", command=root.quit)
-reset_button = customtkinter.CTkButton(frame_2, text="Reset Image")
+reset_button = customtkinter.CTkButton(frame_2, text="Reset Image", command= reset_image)
 
 save_button.pack(side=tk.LEFT, pady=10, padx=20)
 load_button.pack(side=tk.LEFT, pady=10, padx=20)
