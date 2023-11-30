@@ -18,6 +18,7 @@ customtkinter.set_default_color_theme("dark-blue")
 
 # Size of the window
 root = customtkinter.CTk()
+root.title("Computer Photography Project")
 root.geometry("1000x600")
 
 
@@ -289,6 +290,7 @@ def on_tone_curve_slider_move(value):
 def film_effects_ui():
     top = customtkinter.CTkToplevel()
     top.geometry("500x400")
+    top.title("Film Effects")
 
     frame_1 = customtkinter.CTkFrame(master=top)
     frame_2 = customtkinter.CTkFrame(master=top)
@@ -325,6 +327,7 @@ def film_effects_ui():
 def filters_ui():
     top = customtkinter.CTkToplevel()
     top.geometry("300x200")
+    top.title("Filters")
 
     frame_1 = customtkinter.CTkFrame(master=top)
     frame_1.pack(pady=10, padx=10, fill="both", expand=True)
@@ -352,6 +355,7 @@ def filters_ui():
 def zoom_ui():
     top = customtkinter.CTkToplevel()
     top.geometry("300x200")
+    top.title("Zoom")
 
     frame_1 = customtkinter.CTkFrame(master=top)
     frame_1.pack(pady=10, padx=10, fill="both", expand=True)
@@ -365,6 +369,7 @@ def zoom_ui():
 def tone_curve_ui():
     top = customtkinter.CTkToplevel()
     top.geometry("300x200")
+    top.title("Tone Curve")
 
     frame_1 = customtkinter.CTkFrame(master=top)
     frame_1.pack(pady=10, padx=10, fill="both", expand=True)
@@ -380,6 +385,7 @@ def white_balance_ui():
 
     top = customtkinter.CTkToplevel()
     top.geometry("400x200")
+    top.title("White Balance")
 
     frame_1 = customtkinter.CTkFrame(master=top)
     frame_2 = customtkinter.CTkFrame(master=top)
