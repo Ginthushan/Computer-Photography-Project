@@ -87,9 +87,10 @@ def save_image():
     cv2.imwrite('modified_image.jpg', image_data)
 
 def reset_image():
-    global reset_image_data
-    image_data = reset_image_data.astype(np.uint8)
+    global original_image_data
+    image_data = original_image_data.astype(np.uint8)
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(image_data))
+    image_panel.image = np_image_data
     image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
 
 def classic_vintage():
@@ -208,7 +209,80 @@ def on_gamma_slider_move(value):
     image_panel.image = np_image_data
     image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
 
+def white_balance_grey():
+    mean_r, mean_g, mean_b = np.average(original_image_data.reshape(-1,3),0)
+    mean_gray= 128
+    scale_r = mean_gray / mean_r
+    scale_g = mean_gray / mean_g
+    scale_b = mean_gray / mean_b
 
+    result_image = np.empty(original_image_data.shape, dtype=np.uint8)
+    result_image[:,:,0] = np.clip(original_image_data[:,:,0] * scale_r, 0, 255).astype(np.uint8)
+    result_image[:,:,1] = np.clip(original_image_data[:,:,1] * scale_g, 0, 255).astype(np.uint8)
+    result_image[:,:,2] = np.clip(original_image_data[:,:,2] * scale_b, 0, 255).astype(np.uint8)
+
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(result_image))
+    image_panel.image = np_image_data
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+
+def white_balance_white():
+    mean_r, mean_g, mean_b = np.average(original_image_data.reshape(-1,3),0)
+    mean_white=255
+    scale_r = mean_white / mean_r
+    scale_g = mean_white / mean_g
+    scale_b = mean_white / mean_b
+
+    result_image = np.empty(original_image_data.shape, dtype=np.uint8)
+    result_image[:,:,0] = np.clip(original_image_data[:,:,0] * scale_r, 0, 255).astype(np.uint8)
+    result_image[:,:,1] = np.clip(original_image_data[:,:,1] * scale_g, 0, 255).astype(np.uint8)
+    result_image[:,:,2] = np.clip(original_image_data[:,:,2] * scale_b, 0, 255).astype(np.uint8)
+
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(result_image))
+    image_panel.image = np_image_data
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+
+def on_zoom_slider_move(value):
+    global original_image_data
+
+    image_data = original_image_data.astype(float)
+
+    zoom_level = 1 + (value / 100)
+
+    zoomed_image = cv2.resize(image_data, None, fx=zoom_level, fy=zoom_level, interpolation=cv2.INTER_LINEAR)
+    zoomed_image = np.clip(zoomed_image, 0, 255)
+
+    zoomed_image = zoomed_image.astype(np.uint8)
+
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(zoomed_image))
+    image_panel.image = np_image_data
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+
+def on_white_balance_slider_move(value):
+    global original_image_data
+
+    image_data = original_image_data.astype(float)
+    white_balance_factor = 1 + (value / 100)
+    white_balanced_image = image_data * white_balance_factor
+    white_balanced_image = np.clip(white_balanced_image, 0, 255)
+
+    white_balanced_image  = white_balanced_image.astype(np.uint8)
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(white_balanced_image ))
+    image_panel.image = np_image_data
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+
+def on_tone_curve_slider_move(value):
+    global original_image_data
+
+    image_data = original_image_data.astype(float)
+    tone_curve_factor = 1 + (value / 100)
+    toned_image = 255 * (image_data / 255) ** tone_curve_factor
+
+    toned_image = np.clip(toned_image, 0, 255)
+    toned_image = toned_image.astype(np.uint8)
+
+    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(toned_image))
+    image_panel.image = np_image_data
+    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
 
 
 #Creates the Film Effects Window
@@ -282,42 +356,46 @@ def zoom_ui():
     frame_1 = customtkinter.CTkFrame(master=top)
     frame_1.pack(pady=10, padx=10, fill="both", expand=True)
     label_1 = customtkinter.CTkLabel(frame_1, text="Zoom Level")
-    zoom = customtkinter.CTkSlider(frame_1, from_=0, to=100)
+    zoom = customtkinter.CTkSlider(frame_1, from_=0, to=100, command=on_zoom_slider_move)
 
     label_1.pack()
     zoom.pack()
 
-def white_balance_grey():
-    mean_r, mean_g, mean_b = np.average(original_image_data.reshape(-1,3),0)
-    mean_gray= 128
-    scale_r = mean_gray / mean_r
-    scale_g = mean_gray / mean_g
-    scale_b = mean_gray / mean_b
+#Creates the Tone Curve Window
+def tone_curve_ui():
+    top = customtkinter.CTkToplevel()
+    top.geometry("300x200")
 
-    result_image = np.empty(original_image_data.shape, dtype=np.uint8)
-    result_image[:,:,0] = np.clip(original_image_data[:,:,0] * scale_r, 0, 255).astype(np.uint8)
-    result_image[:,:,1] = np.clip(original_image_data[:,:,1] * scale_g, 0, 255).astype(np.uint8)
-    result_image[:,:,2] = np.clip(original_image_data[:,:,2] * scale_b, 0, 255).astype(np.uint8)
+    frame_1 = customtkinter.CTkFrame(master=top)
+    frame_1.pack(pady=10, padx=10, fill="both", expand=True)
+    label_1 = customtkinter.CTkLabel(frame_1, text="Tone Curve")
+    tone_curve = customtkinter.CTkSlider(frame_1, from_=0, to=100, command=on_tone_curve_slider_move)
 
-    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(result_image))
-    image_panel.image = np_image_data
-    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+    label_1.pack()
+    tone_curve.pack()
 
-def white_balance_white():
-    mean_r, mean_g, mean_b = np.average(original_image_data.reshape(-1,3),0)
-    mean_white=255
-    scale_r = mean_white / mean_r
-    scale_g = mean_white / mean_g
-    scale_b = mean_white / mean_b
+#Creates the White Balance Window
+def white_balance_ui():
+    global original_image_data
 
-    result_image = np.empty(original_image_data.shape, dtype=np.uint8)
-    result_image[:,:,0] = np.clip(original_image_data[:,:,0] * scale_r, 0, 255).astype(np.uint8)
-    result_image[:,:,1] = np.clip(original_image_data[:,:,1] * scale_g, 0, 255).astype(np.uint8)
-    result_image[:,:,2] = np.clip(original_image_data[:,:,2] * scale_b, 0, 255).astype(np.uint8)
+    top = customtkinter.CTkToplevel()
+    top.geometry("400x200")
 
-    np_image_data = ImageTk.PhotoImage(image=Image.fromarray(result_image))
-    image_panel.image = np_image_data
-    image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
+    frame_1 = customtkinter.CTkFrame(master=top)
+    frame_2 = customtkinter.CTkFrame(master=top)
+    frame_1.pack(pady=10, padx=10, fill="both", expand=True)
+    frame_2.pack(pady=10, padx=10, fill="both", expand=True)
+    label_1 = customtkinter.CTkLabel(frame_1, text="Presets")
+    label_2 = customtkinter.CTkLabel(frame_2, text="White Balance Level")
+    white_button = customtkinter.CTkButton(frame_1, text="White World Assumption", command=white_balance_white)
+    grey_button = customtkinter.CTkButton(frame_1, text="Grey World Assumption", command=white_balance_grey)
+    balance_slider = customtkinter.CTkSlider(frame_2, from_=0, to=100, command=on_white_balance_slider_move)
+
+    label_1.pack()
+    label_2.pack()
+    white_button.pack(pady=10, padx=10, side=tk.LEFT)
+    grey_button.pack(pady=10, padx=10, side=tk.LEFT)
+    balance_slider.pack(pady=10, padx=10)
 
 frame_1 = customtkinter.CTkFrame(master=root)
 frame_2 = customtkinter.CTkFrame(master=root)
@@ -346,14 +424,13 @@ reset_button.pack(side=tk.RIGHT, pady=10, padx=20)
 film_effects_button = customtkinter.CTkButton(frame_3, text="Film Effects", command=film_effects_ui)
 filters_button = customtkinter.CTkButton(frame_3, text="Filters", command=filters_ui)
 zoom_button = customtkinter.CTkButton(frame_3, text="Zoom", command=zoom_ui)
-white_balance_button_1 = customtkinter.CTkButton(frame_3, text="White Balance (Grey World)", command=white_balance_grey)
-white_balance_button_2 = customtkinter.CTkButton(frame_3, text="White Balance (White World)", command=white_balance_white)
+white_balance = customtkinter.CTkButton(frame_3, text="White Balance", command=white_balance_ui)
+tone_curve = customtkinter.CTkButton(frame_3, text="Tone Curve", command=tone_curve_ui)
 
 film_effects_button.pack(side=tk.LEFT, pady=10, padx=20)
 filters_button.pack(side=tk.LEFT, pady=10, padx=20)
 zoom_button.pack(side=tk.LEFT, pady=10, padx=20)
-white_balance_button_1.pack(side=tk.LEFT, pady=10, padx=20)
-white_balance_button_2.pack(side=tk.LEFT, pady=10, padx=20)
-
+white_balance.pack(side=tk.LEFT, pady=10, padx=20)
+tone_curve.pack(side=tk.LEFT, pady=10, padx=20)
 
 root.mainloop()
