@@ -94,18 +94,27 @@ def reset_image():
     image_panel.image = np_image_data
     image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
 
-def classic_vintage():
+def classic_vintage(contrast_factor=1.5, saturation_factor=0.8, noise_factor=5):
     global original_image_data
 
-    image_data = original_image_data.astype(float)
+    img_array = original_image_data.astype(float)
 
-    red_factor = 0.7
-    green_factor = 0.9
-    blue_factor = 1.1
+    # Adjust contrast and saturation for each color channel
+    for i in range(3):  # Loop through RGB channels
+        img_array[:, :, i] = img_array[:, :, i] * contrast_factor
+        img_array[:, :, i] = np.clip(img_array[:, :, i], 0, 255)
+        img_array[:, :, i] = img_array[:, :, i].astype(np.uint8)
 
-    vintage_image = image_data * [red_factor, green_factor, blue_factor]
-    vintage_image = np.clip(vintage_image, 0, 255)
+    # Convert to grayscale
+    grayscale = np.dot(img_array[..., :3], [0.299, 0.587, 0.114])
 
+    # Add noise
+    noise = np.random.normal(scale=noise_factor, size=grayscale.shape).astype(np.uint8)
+    img_array = np.clip(grayscale + noise, 0, 255)
+
+    # Adjust saturation
+    img_array = img_array * saturation_factor
+    vintage_image = np.clip(img_array, 0, 255)
     vintage_image = vintage_image.astype(np.uint8)
 
     # Update the image on the canvas
