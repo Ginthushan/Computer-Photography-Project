@@ -192,13 +192,38 @@ def on_noise_slider_move(value):
     image_panel.image = np_image_data
     image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
 
-def on_light_leak_slider_move(value):
+def on_light_leak_slider_move():
     global original_image_data
 
     image_data = original_image_data.astype(float)
-    light_leak_intensity = value * 2.55
-    brightened_image = image_data + light_leak_intensity
-    brightened_image = np.clip(brightened_image, 0, 255)
+    new_layer = original_image_data.astype(float)
+
+    # Choose a gradient (radial gradient for a more pronounced effect)
+    height, width, _ = image_data.shape
+    x, y = np.meshgrid(np.arange(width), np.arange(height))
+    center_x, center_y = width // 2, height // 2
+    radius = np.sqrt((x - center_x)**2 + (y - center_y)**2)
+    gradient = 1 - np.clip(radius / (width / 2), 0, 1)
+
+    # Adjust Gradient Settings (apply colors to the gradient)
+    rainbow_colors = np.array([
+    [148, 0, 211],  # Violet
+    [75, 0, 130],   # Indigo
+    [0, 0, 255],    # Blue
+    [0, 255, 0],    # Green
+    [255, 255, 0],  # Yellow
+    [255, 127, 0],  # Orange
+    [255, 0, 0]     # Red
+])
+    gradient_colored = gradient[:, :, np.newaxis] * rainbow_colors[np.newaxis, 0, :]
+
+    # Draw the Gradient
+    new_layer *= (1 - gradient[:, :, np.newaxis])  # Make the original image darker
+    new_layer += gradient_colored  # Add the rainbow-colored gradient
+
+
+    # Blend Mode: Screen
+    brightened_image = np.clip(image_data + new_layer, 0, 255)
     brightened_image = brightened_image.astype(np.uint8)
 
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(brightened_image))
@@ -345,10 +370,10 @@ def filters_ui():
     label_2 = customtkinter.CTkLabel(frame_1, text="Noise Reduction")
     label_3 = customtkinter.CTkLabel(frame_1, text="Light Leak")
     label_4 = customtkinter.CTkLabel(frame_1, text="Gamma Correction")
-
+    
+    light_light = customtkinter.CTkButton(frame_1, text="Light Leak", command=on_light_leak_slider_move)
     grayscale = customtkinter.CTkSlider(frame_1, from_=0, to=100, command=on_grayscale_slider_move)
     noise = customtkinter.CTkSlider(frame_1, from_=0, to=100, command=on_noise_slider_move)
-    light_light = customtkinter.CTkSlider(frame_1, from_=0, to=100, command=on_light_leak_slider_move)
     gamma = customtkinter.CTkSlider(frame_1, from_=0, to=100, command=on_gamma_slider_move)
 
     label_1.pack()
