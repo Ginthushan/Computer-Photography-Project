@@ -32,3 +32,7 @@ After installation of required packages, run using
  ```python main.py``` 
 
 ## Youtube Link
+
+Demo Video: 
+
+https://www.youtube.com/watch?v=lq3jiViqugs
