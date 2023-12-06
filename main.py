@@ -18,7 +18,7 @@ customtkinter.set_default_color_theme("dark-blue")
 
 # Size of the window
 root = customtkinter.CTk()
-root.title("Computer Photography Project")
+root.title("GD IMAGE STUDIO")
 root.geometry("1000x600")
 
 #Adjusts contrast on slider move
@@ -321,7 +321,6 @@ def on_zoom_slider_move(value):
     zoomed_image = np.clip(zoomed_image, 0, 255)
 
     zoomed_image = zoomed_image.astype(np.uint8)
-    original_image_data = zoomed_image
 
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(zoomed_image))
     image_panel.image = np_image_data
