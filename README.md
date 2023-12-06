@@ -40,6 +40,4 @@ Demo Video:
 
 https://www.youtube.com/watch?v=lq3jiViqugs
 
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/YOUTUBE_lq3jiViqugs/0.jpg)](https://www.youtube.com/watch?v=lq3jiViqugs)
-
-
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/lq3jiViqugs/0.jpg)](https://www.youtube.com/watch?v=lq3jiViqugs)
