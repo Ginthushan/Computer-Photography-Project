@@ -10,6 +10,9 @@ Dennis Peng - 100785937
 
 ## Description
 
+GD Image Studio, a desktop application at the nexus of Python, Tkinter, and computational photography. The application stands as a testament to the evolution of digital image processing. 
+The feature-rich environment includes Film Effects, Filters, White Balance, Tone Curve, and Zoom, providing users with interactive tools for image manipulation.
+
 ## Dependencies required
 
 * Python
