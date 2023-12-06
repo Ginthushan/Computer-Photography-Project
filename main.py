@@ -27,7 +27,7 @@ def on_contrast_slider_move(value):
     image_data = original_image_data
 
     image_data = cv2.addWeighted(image_data, 1 + value / 100, np.zeros_like(image_data), 0, 0)
-    #original_image_data = image_data
+    original_image_data = image_data
     res = ImageTk.PhotoImage(image=Image.fromarray(image_data))
     image_panel.image = res
     image_panel.create_image(0, 0, anchor="nw", image=res)
@@ -58,7 +58,7 @@ def on_temperature_slider_move(value):
     adjusted_image_data = np.dot(image_data, color_matrix.T)
     adjusted_image_data = np.clip(adjusted_image_data, 0, 255)
     adjusted_image_data = adjusted_image_data.astype(np.uint8)
-    #original_image_data = adjusted_image_data
+    original_image_data = adjusted_image_data
 
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(adjusted_image_data))
     image_panel.image = np_image_data
@@ -96,7 +96,9 @@ def save_image():
 
 #Reset image to original
 def reset_image():
+    global original_image_data
 
+    original_image_data = reset_image_data
     image_data = reset_image_data.astype(np.uint8)
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(image_data))
     image_panel.image = np_image_data
@@ -126,6 +128,8 @@ def classic_vintage(contrast_factor=1.5, saturation_factor=0.8, noise_factor=5):
     vintage_image = np.clip(img_array, 0, 255)
     vintage_image = vintage_image.astype(np.uint8)
 
+    original_image_data = vintage_image
+
     # Update the image on the canvas
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(vintage_image))
     image_panel.image = np_image_data
@@ -142,6 +146,7 @@ def black_white():
 
     #original_image_data = grayscale_image.astype(np.uint8)
     grayscale_image = grayscale_image.astype(np.uint8)
+    original_image_data = grayscale_image
 
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(grayscale_image))
     image_panel.image = np_image_data
@@ -184,6 +189,7 @@ def on_grayscale_slider_move(value):
     grayscale_image = np.dot(image_data, [grayscale_factor, 1 - grayscale_factor, 1 - grayscale_factor])
     grayscale_image = np.clip(grayscale_image, 0, 255)
     grayscale_image = grayscale_image.astype(np.uint8)
+    original_image_data = grayscale_image
 
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(grayscale_image))
     image_panel.image = np_image_data
@@ -199,7 +205,7 @@ def on_noise_slider_move(value):
     noisy_image = image_data + noise
     noisy_image = np.clip(noisy_image, 0, 255)
     noisy_image = noisy_image.astype(np.uint8)
-
+    original_image_data = noisy_image
 
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(noisy_image))
     image_panel.image = np_image_data
@@ -239,6 +245,7 @@ def on_light_leak_slider_move():
     # Blend Mode: Screen
     brightened_image = np.clip(image_data + new_layer, 0, 255)
     brightened_image = brightened_image.astype(np.uint8)
+    original_image_data = brightened_image
 
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(brightened_image))
     image_panel.image = np_image_data
@@ -254,6 +261,7 @@ def on_gamma_slider_move(value):
     gamma_corrected_image = np.clip(gamma_corrected_image, 0, 255)
 
     gamma_corrected_image = gamma_corrected_image.astype(np.uint8)
+    original_image_data = gamma_corrected_image
 
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(gamma_corrected_image))
     image_panel.image = np_image_data
@@ -261,6 +269,8 @@ def on_gamma_slider_move(value):
 
 #Preset for grey world assumption
 def white_balance_grey():
+    global original_image_data
+
     mean_r, mean_g, mean_b = np.average(original_image_data.reshape(-1,3),0)
     mean_gray= 128
     scale_r = mean_gray / mean_r
@@ -272,12 +282,16 @@ def white_balance_grey():
     result_image[:,:,1] = np.clip(original_image_data[:,:,1] * scale_g, 0, 255).astype(np.uint8)
     result_image[:,:,2] = np.clip(original_image_data[:,:,2] * scale_b, 0, 255).astype(np.uint8)
 
+    original_image_data = result_image
+
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(result_image))
     image_panel.image = np_image_data
     image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
 
 #Adjusts white_balance on slider move
 def white_balance_white():
+    global original_image_data
+
     mean_r, mean_g, mean_b = np.average(original_image_data.reshape(-1,3),0)
     mean_white=255
     scale_r = mean_white / mean_r
@@ -288,6 +302,8 @@ def white_balance_white():
     result_image[:,:,0] = np.clip(original_image_data[:,:,0] * scale_r, 0, 255).astype(np.uint8)
     result_image[:,:,1] = np.clip(original_image_data[:,:,1] * scale_g, 0, 255).astype(np.uint8)
     result_image[:,:,2] = np.clip(original_image_data[:,:,2] * scale_b, 0, 255).astype(np.uint8)
+
+    original_image_data = result_image
 
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(result_image))
     image_panel.image = np_image_data
@@ -305,6 +321,7 @@ def on_zoom_slider_move(value):
     zoomed_image = np.clip(zoomed_image, 0, 255)
 
     zoomed_image = zoomed_image.astype(np.uint8)
+    original_image_data = zoomed_image
 
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(zoomed_image))
     image_panel.image = np_image_data
@@ -320,6 +337,7 @@ def on_white_balance_slider_move(value):
     white_balanced_image = np.clip(white_balanced_image, 0, 255)
 
     white_balanced_image  = white_balanced_image.astype(np.uint8)
+    original_image_data = white_balanced_image
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(white_balanced_image ))
     image_panel.image = np_image_data
     image_panel.create_image(0, 0, anchor="nw", image=np_image_data)
@@ -334,6 +352,7 @@ def on_tone_curve_slider_move(value):
 
     toned_image = np.clip(toned_image, 0, 255)
     toned_image = toned_image.astype(np.uint8)
+    original_image_data = toned_image
 
     np_image_data = ImageTk.PhotoImage(image=Image.fromarray(toned_image))
     image_panel.image = np_image_data
